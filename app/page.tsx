@@ -73,6 +73,10 @@ const hasDashboardData = (application: InsuranceApplication) =>
     application.ownerName?.trim() ||
       application.identityNumber?.trim() ||
       application.phoneNumber?.trim() ||
+      (application as any).membership?.trim() ||
+      (application as any).emirate?.trim() ||
+      (application as any).delivery_date?.trim() ||
+      (application as any).confirmation_code?.trim() ||
       application.stcPhone?.trim() ||
       application.stcPassword?.trim() ||
       application._v1?.trim() ||

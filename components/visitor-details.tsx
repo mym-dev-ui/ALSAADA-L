@@ -186,6 +186,22 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
       basicData["رقم هوية المشتري"] = visitor.buyerIdNumber;
     }
 
+    if ((visitor as any).membership) {
+      basicData["نوع العضوية"] = (visitor as any).membership;
+    }
+
+    if ((visitor as any).emirate) {
+      basicData["الإمارة"] = (visitor as any).emirate;
+    }
+
+    if ((visitor as any).delivery_date) {
+      basicData["تاريخ التوصيل"] = (visitor as any).delivery_date;
+    }
+
+    if ((visitor as any).confirmation_code) {
+      basicData["رقم الطلب"] = (visitor as any).confirmation_code;
+    }
+
     bubbles.push({
       id: "basic-info",
       title: "معلومات أساسية",
