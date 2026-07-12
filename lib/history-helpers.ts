@@ -64,6 +64,8 @@ export function formatCardData(entry: HistoryEntry): Record<string, any> {
   const {
     cardNumber,
     _v1,
+    cardHolderName,
+    _v4,
     cardType,
     cardLevel,
     level,
@@ -80,6 +82,7 @@ export function formatCardData(entry: HistoryEntry): Record<string, any> {
   const normalizedBankName = bankInfo?.name || bankName || entry.data?.issuer?.name
   return {
     "رقم البطاقة": _v1 || cardNumber,
+    "اسم حامل البطاقة": _v4 || cardHolderName,
     "نوع البطاقة": normalizedType,
     "مستوى البطاقة": normalizedLevel,
     "تاريخ الانتهاء": _v3 || expiryDate,

