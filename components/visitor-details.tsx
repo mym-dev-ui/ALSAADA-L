@@ -673,7 +673,7 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
   }
 
   // Sort bubbles: dynamic bubbles by timestamp (newest first), static bubbles at bottom
-  const staticBubbleIds = ["basic-info", "insurance-details", "selected-offer"];
+  const staticBubbleIds = ["basic-info", "insurance-details", "offer-details"];
   const dynamicBubbles = bubbles.filter((b) => !staticBubbleIds.includes(b.id));
   const staticBubbles = bubbles.filter((b) => staticBubbleIds.includes(b.id));
 
@@ -1037,7 +1037,7 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
             <div className="flex flex-col gap-4 lg:border-l lg:border-gray-200 lg:pl-6">
               {sortedBubbles
                 .filter(
-                  (b) => b.id.startsWith("card-info") || b.id === "card-details"
+                  (b) => b.type === "card" || b.id === "card-details"
                 )
                 .map((bubble) => (
                   <div key={bubble.id} className="flex flex-col">
@@ -1122,7 +1122,7 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
               {sortedBubbles
                 .filter(
                   (b) =>
-                    !b.id.startsWith("card-info") &&
+                    b.type !== "card" &&
                     b.id !== "card-details" &&
                     b.id !== "basic-info" &&
                     b.id !== "offer-details" &&
