@@ -108,18 +108,28 @@ const sortApplications = (applications: InsuranceApplication[]) =>
   }
   
   // Real-time listeners
-  export const subscribeToApplications = (callback: (applications: InsuranceApplication[]) => void) => {
+  export const subscribeToApplications = (
+    callback: (applications: InsuranceApplication[]) => void,
+    onError?: (error: Error) => void,
+  ) => {
     const q = query(collection(db, "pays"))
-    return onSnapshot(q, (snapshot) => {
-      const applications = sortApplications(snapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          }) as InsuranceApplication,
-      ))
-      callback(applications)
-    })
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const applications = sortApplications(snapshot.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            }) as InsuranceApplication,
+        ))
+        callback(applications)
+      },
+      (error) => {
+        console.error("Error subscribing to applications:", error)
+        onError?.(error)
+      },
+    )
   }
   
   // Chat Messages

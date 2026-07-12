@@ -12,6 +12,7 @@ import { VisitorSidebar } from "@/components/visitor-sidebar";
 import { VisitorDetails } from "@/components/visitor-details";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { ProtectedRoute } from "@/components/protected-route";
+import { useAuth } from "@/lib/auth-context";
 import { Timestamp } from "firebase/firestore";
 import { toast } from "sonner";
 
@@ -141,6 +142,7 @@ const showCardNotification = (visitors: InsuranceApplication[]) => {
 };
 
 export default function Dashboard() {
+  const { user, loading: authLoading } = useAuth();
   const [applications, setApplications] = useState<InsuranceApplication[]>([]);
   const [selectedVisitor, setSelectedVisitor] =
     useState<InsuranceApplication | null>(null);
@@ -151,6 +153,7 @@ export default function Dashboard() {
   const [cardFilter, setCardFilter] = useState<"all" | "hasCard">("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [isExportingAllCards, setIsExportingAllCards] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(215); // Default landscape width
   const hasLoadedInitialSnapshotRef = useRef(false);
@@ -169,6 +172,18 @@ export default function Dashboard() {
 
   // Subscribe to Firebase
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setLoadError("");
+
     const unsubscribe = subscribeToApplications((apps) => {
       const isInitialSnapshot = !hasLoadedInitialSnapshotRef.current;
 
@@ -269,10 +284,13 @@ export default function Dashboard() {
 
         return prev;
       });
+    }, () => {
+      setLoading(false);
+      setLoadError("تعذر تحميل البيانات. تأكد من تسجيل الدخول وصلاحيات Firebase.");
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [authLoading, user]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -410,19 +428,27 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-dvh flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري التحميل...</p>
-        </div>
+  const loadingView = (
+    <div className="min-h-dvh flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">جاري التحميل...</p>
       </div>
-    );
-  }
+    </div>
+  );
+
+  const errorView = (
+    <div className="min-h-dvh flex items-center justify-center bg-gray-50 px-6">
+      <div className="max-w-md rounded-2xl border border-red-100 bg-white p-6 text-center shadow-sm">
+        <h2 className="text-lg font-bold text-gray-800">تعذر فتح لوحة التحكم</h2>
+        <p className="mt-3 text-sm leading-7 text-gray-500">{loadError}</p>
+      </div>
+    </div>
+  );
 
   return (
     <ProtectedRoute>
+    {loading ? loadingView : loadError ? errorView : (
     <div
       className="min-h-screen h-dvh flex flex-col bg-gradient-to-br from-slate-50 via-gray-50 to-indigo-50/40"
       dir="rtl"
@@ -496,6 +522,7 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+    )}
     </ProtectedRoute>
   );
 }
